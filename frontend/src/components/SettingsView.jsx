@@ -11,6 +11,7 @@ const COMMON_TZ = [
 export default function SettingsView({ settings, refresh }) {
   const toast = useToast();
   const [cookie, setCookie] = useState("");
+  const [pubUrl, setPubUrl] = useState(settings?.publication_url || "");
   const [tz, setTz] = useState(settings?.timezone || "UTC");
   const [slotTimes, setSlotTimes] = useState(settings?.slot_times || "09:00,15:00");
   const [busy, setBusy] = useState(false);
@@ -21,6 +22,7 @@ export default function SettingsView({ settings, refresh }) {
       const payload = {
         timezone: tz,
         slot_times: slotTimes,
+        publication_url: pubUrl,
       };
       if (cookie.trim()) payload.session_cookie = cookie.trim();
       const res = await api.updateSettings(payload);
@@ -53,6 +55,21 @@ export default function SettingsView({ settings, refresh }) {
 
       <div className="bg-white rounded-xl border border-stone-200 p-4 space-y-3">
         <label className="block">
+          <span className="text-sm font-medium">Publication URL</span>
+          <span className="block text-xs text-stone-400 mb-1">
+            Your blog's address — where you're logged in. Use your custom domain if you
+            have one (e.g. <code>https://www.tomdev.blog</code>), otherwise
+            <code>https://yourname.substack.com</code>.
+          </span>
+          <input
+            type="text"
+            value={pubUrl}
+            placeholder="https://www.yourblog.com"
+            onChange={(e) => setPubUrl(e.target.value)}
+            className="w-full text-sm border border-stone-300 rounded-md p-2"
+          />
+        </label>
+        <label className="block">
           <span className="text-sm font-medium">Substack session cookie</span>
           <textarea
             rows={4}
@@ -69,11 +86,11 @@ export default function SettingsView({ settings, refresh }) {
         <details className="text-xs text-stone-500">
           <summary className="cursor-pointer text-substack">How do I get my cookie?</summary>
           <ol className="list-decimal ml-5 mt-2 space-y-1">
-            <li>Log in to Substack in your browser.</li>
-            <li>Open DevTools (F12) → <b>Network</b> tab.</li>
-            <li>Reload, click any <code>substack.com</code> request.</li>
-            <li>Under Request Headers, copy the entire <code>Cookie:</code> value.</li>
-            <li>Paste it above and click Save. (Re-paste when the connection drops.)</li>
+            <li>Log in to <b>your publication</b> (the Publication URL above) in your browser.</li>
+            <li>Open DevTools (F12) → <b>Network</b> tab, type <code>api</code> in the filter.</li>
+            <li>Reload, then click any request to your domain's <code>/api/v1/...</code>.</li>
+            <li>Under Request Headers, copy the entire <code>Cookie:</code> value (must include <code>connect.sid</code>).</li>
+            <li>Paste it above and Save — the indicator turns green when it works. (Re-paste when it drops.)</li>
           </ol>
         </details>
       </div>

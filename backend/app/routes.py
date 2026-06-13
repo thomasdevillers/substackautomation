@@ -50,16 +50,19 @@ class SettingsUpdate(BaseModel):
     publication_url: Optional[str] = None
 
 
+def _check_connection(setting: Setting) -> bool:
+    if not setting.session_cookie_enc or not setting.publication_url:
+        return False
+    try:
+        return verify_cookie(decrypt_cookie(setting.session_cookie_enc), setting.publication_url)
+    except (SubstackError, ValueError):
+        return False
+
+
 @router.get("/settings")
 def get_settings_route(db=Depends(get_db)):
     setting = db.get(Setting, 1)
-    connected = False
-    if setting and setting.session_cookie_enc:
-        try:
-            connected = verify_cookie(decrypt_cookie(setting.session_cookie_enc))
-        except (SubstackError, ValueError):
-            connected = False
-    return {**setting.to_public_dict(), "connected": connected}
+    return {**setting.to_public_dict(), "connected": _check_connection(setting)}
 
 
 @router.put("/settings")
@@ -84,14 +87,7 @@ def update_settings_route(payload: SettingsUpdate, db=Depends(get_db)):
     if payload.publication_url is not None:
         setting.publication_url = payload.publication_url.strip() or None
     db.commit()
-
-    connected = False
-    if setting.session_cookie_enc:
-        try:
-            connected = verify_cookie(decrypt_cookie(setting.session_cookie_enc))
-        except (SubstackError, ValueError):
-            connected = False
-    return {**setting.to_public_dict(), "connected": connected}
+    return {**setting.to_public_dict(), "connected": _check_connection(setting)}
 
 
 # ------------------------------ import -------------------------------------
@@ -226,9 +222,11 @@ def post_now_route(note_id: int, db=Depends(get_db)):
     setting = db.get(Setting, 1)
     if not setting or not setting.session_cookie_enc:
         raise HTTPException(status_code=400, detail="No Substack cookie configured.")
+    if not setting.publication_url:
+        raise HTTPException(status_code=400, detail="No publication URL configured (see Settings).")
     try:
         cookie = decrypt_cookie(setting.session_cookie_enc)
-        url = post_note(cookie, note.body)
+        url = post_note(cookie, setting.publication_url, note.body)
     except (SubstackError, ValueError) as exc:
         note.status = "failed"
         note.error = str(exc)

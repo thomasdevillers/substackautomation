@@ -39,12 +39,12 @@ def _post_due_notes() -> None:
         if not due:
             return
 
-        if not setting or not setting.session_cookie_enc:
+        if not setting or not setting.session_cookie_enc or not setting.publication_url:
             for note in due:
                 note.status = "failed"
-                note.error = "No Substack session cookie configured (see Settings)."
+                note.error = "Substack not configured: set the session cookie and publication URL in Settings."
             db.commit()
-            log.warning("%d notes due but no cookie configured", len(due))
+            log.warning("%d notes due but Substack not configured", len(due))
             return
 
         try:
@@ -58,7 +58,7 @@ def _post_due_notes() -> None:
 
         for note in due:
             try:
-                url = post_note(cookie, note.body)
+                url = post_note(cookie, setting.publication_url, note.body)
                 note.status = "posted"
                 note.posted_at = utcnow().replace(tzinfo=None)
                 note.substack_note_url = url

@@ -63,15 +63,26 @@ docker run -p 8000:8000 \
    | `DB_PATH` | `/data/notes.db` |
 4. Deploy. Open the URL, enter `APP_PASSWORD`, go to **Settings**, and paste your cookie.
 
-## Getting your Substack session cookie
+## Connecting your Substack account
 
-1. Log in to Substack in your browser.
-2. Open DevTools (F12) → **Network** tab.
-3. Reload the page and click any request to `substack.com`.
-4. Under **Request Headers**, copy the entire `Cookie:` value.
-5. Paste it into **Settings → Substack session cookie** and Save. The header shows
-   **● Substack connected** when it works. Re-paste whenever the connection drops
-   (session cookies expire periodically).
+Substack sessions are **scoped per-domain**, so the app talks to *your publication's*
+host, not `substack.com`. In **Settings** you set two things:
+
+1. **Publication URL** — where you log in. If you have a custom domain use that
+   (e.g. `https://www.tomdev.blog`); otherwise `https://yourname.substack.com`.
+2. **Session cookie**:
+   1. Log in to **your publication** in the browser.
+   2. Open DevTools (F12) → **Network** tab, type `api` in the filter.
+   3. Reload, then click any request to your domain's `/api/v1/...`.
+   4. Under **Request Headers**, copy the entire `Cookie:` value — it must contain
+      `connect.sid` (the session). A cookie grabbed while logged *out* is anonymous
+      and won't work.
+   5. Paste both into Settings and Save. The header shows **● Substack connected**
+      when it authenticates. Re-paste whenever it drops (sessions expire periodically;
+      `connect.sid` typically lasts ~3 months).
+
+Before posting each note the app does a warm-up request that refreshes Substack's
+short-lived Cloudflare cookie, so scheduled posts keep working long after you paste.
 
 ## Daily use
 
