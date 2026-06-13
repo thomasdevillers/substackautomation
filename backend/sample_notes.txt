@@ -1,6 +1,10 @@
 This is my first scheduled note. Substack Notes are short-form posts, great for quick thoughts.
 
-Here's a second note.
-It spans two lines, which should become two paragraphs in the published note.
 
-A third and final note to confirm the importer splits on blank lines correctly.
+Here's a second note.
+It spans two lines, which stay as a single note.
+
+This blank line above is a paragraph break inside the same note.
+
+
+A third and final note to confirm the importer splits on two blank lines.

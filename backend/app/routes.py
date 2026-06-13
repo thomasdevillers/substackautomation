@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
 from .db import get_db
 from .importer import parse_notes
@@ -238,6 +238,14 @@ def post_now_route(note_id: int, db=Depends(get_db)):
     note.error = None
     db.commit()
     return note.to_dict()
+
+
+@router.post("/notes/delete-scheduled")
+def delete_scheduled_route(db=Depends(get_db)):
+    """Delete every note currently in the 'scheduled' state."""
+    result = db.execute(delete(Note).where(Note.status == "scheduled"))
+    db.commit()
+    return {"deleted": result.rowcount}
 
 
 @router.delete("/notes/{note_id}")

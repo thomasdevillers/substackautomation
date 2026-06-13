@@ -86,7 +86,8 @@ short-lived Cloudflare cookie, so scheduled posts keep working long after you pa
 
 ## Daily use
 
-1. **Import** — drop a `.txt` (notes separated by blank lines). Notes are **auto-scheduled**
+1. **Import** — drop a `.txt` (notes separated by **two blank lines**; a single blank
+   line is kept as a paragraph break inside a note). Notes are **auto-scheduled**
    into your daily posting slots (default **09:00 & 15:00 Africa/Johannesburg**), continuing
    into the next free days after anything already scheduled. Past and already-used slots are
    skipped, so repeated imports keep flowing forward.

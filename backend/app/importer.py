@@ -1,15 +1,16 @@
 """Parse an uploaded .txt file into individual note bodies.
 
-Notes are separated by a blank line (one or more empty/whitespace-only lines).
-A note may itself span multiple lines.
+Notes are separated by TWO blank lines. A single blank line is kept inside a
+note (so a note can have paragraph breaks); only two (or more) consecutive
+blank lines start a new note.
 """
 from __future__ import annotations
 
 import re
 from typing import List
 
-# One or more blank lines (possibly containing whitespace) separates notes.
-_SEPARATOR = re.compile(r"\n[ \t]*\n+")
+# A line break followed by two or more blank lines separates notes.
+_SEPARATOR = re.compile(r"\n(?:[ \t]*\n){2,}")
 
 
 def parse_notes(text: str) -> List[str]:

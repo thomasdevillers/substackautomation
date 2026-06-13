@@ -46,6 +46,20 @@ export default function BoardView({ notes, settings, refresh }) {
     }
   }
 
+  async function deleteAllScheduled() {
+    const count = grouped.scheduled.length;
+    if (count === 0) return toast("No scheduled notes to delete", "info");
+    if (!confirm(`Delete all ${count} scheduled notes? This can't be undone.`)) return;
+    try {
+      const res = await api.deleteScheduled();
+      toast(`Deleted ${res.deleted} scheduled notes`, "success");
+      setSelected([]);
+      refresh();
+    } catch (e) {
+      toast(e.message, "error");
+    }
+  }
+
   async function approveSelected() {
     if (selected.length === 0) return toast("Select some notes first", "error");
     try {
@@ -102,6 +116,14 @@ export default function BoardView({ notes, settings, refresh }) {
             <h3 className="font-semibold text-sm text-stone-600 mb-2 flex items-center gap-2">
               {col.label}
               <span className="text-xs bg-stone-200 rounded-full px-2">{grouped[col.key].length}</span>
+              {col.key === "scheduled" && grouped.scheduled.length > 0 && (
+                <button
+                  onClick={deleteAllScheduled}
+                  className="ml-auto text-xs px-2 py-0.5 rounded-md border border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  Delete all
+                </button>
+              )}
             </h3>
             <div className="space-y-3">
               {grouped[col.key].length === 0 && (

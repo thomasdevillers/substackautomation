@@ -57,6 +57,7 @@ export const api = {
   createNote: (body) => fetch("/api/notes", json("POST", { body })).then(handle),
   updateNote: (id, p) => fetch(`/api/notes/${id}`, json("PATCH", p)).then(handle),
   deleteNote: (id) => fetch(`/api/notes/${id}`, json("DELETE")).then(handle),
+  deleteScheduled: () => fetch("/api/notes/delete-scheduled", json("POST")).then(handle),
   approve: (ids) => fetch("/api/notes/approve", json("POST", { note_ids: ids })).then(handle),
   autoSpread: (p) => fetch("/api/notes/auto-spread", json("POST", p)).then(handle),
   postNow: (id) => fetch(`/api/notes/${id}/post-now`, json("POST")).then(handle),

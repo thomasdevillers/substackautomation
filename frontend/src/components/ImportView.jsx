@@ -16,7 +16,7 @@ export default function ImportView({ onImported, goToBoard }) {
       const text = String(reader.result || "");
       const notes = text
         .replace(/\r\n/g, "\n")
-        .split(/\n[ \t]*\n+/)
+        .split(/\n(?:[ \t]*\n){2,}/)
         .map((s) => s.trim())
         .filter(Boolean);
       setPreview({ fileName: file.name, file, notes });
@@ -47,8 +47,9 @@ export default function ImportView({ onImported, goToBoard }) {
     <div className="max-w-3xl mx-auto">
       <h2 className="text-xl font-semibold mb-1">Import notes</h2>
       <p className="text-stone-500 mb-5 text-sm">
-        Upload a <code>.txt</code> file. Separate each note with a blank line — a
-        note can span multiple lines. On import, notes are{" "}
+        Upload a <code>.txt</code> file. Separate each note with{" "}
+        <span className="font-medium">two blank lines</span> — a single blank line
+        stays inside a note as a paragraph break. On import, notes are{" "}
         <span className="font-medium">automatically scheduled</span> into your daily
         posting slots (set them in Settings), continuing after anything already scheduled.
       </p>
